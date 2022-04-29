@@ -14,11 +14,11 @@ declare(strict_types=1);
 
 namespace Littler\Encryption;
 
-use Hyperf\Contract\ConfigInterface;
 use InvalidArgumentException;
+use Hyperf\Contract\ConfigInterface;
+use Littler\Encryption\Driver\RsaDriver;
 use Littler\Encryption\Contract\DriverInterface;
 use Littler\Encryption\Contract\EncryptionInterface;
-use Littler\Encryption\Driver\AesDriver;
 
 class EncryptionManager implements EncryptionInterface
 {
@@ -41,14 +41,14 @@ class EncryptionManager implements EncryptionInterface
         $this->config = $config;
     }
 
-    public function encrypt($value, bool $serialize = true): string
+    public function encrypt($value, int $type = 1, bool $serialize = true): string
     {
-        return $this->getDriver()->encrypt($value, $serialize);
+        return $this->getDriver()->encrypt($value,  $type, $serialize);
     }
 
-    public function decrypt(string $payload, bool $unserialize = true)
+    public function decrypt(string $payload, int $type = 2, bool $unserialize = true): mixed
     {
-        return $this->getDriver()->decrypt($payload, $unserialize);
+        return $this->getDriver()->decrypt($payload,  $type, $unserialize);
     }
 
     /**
@@ -62,14 +62,13 @@ class EncryptionManager implements EncryptionInterface
             return $this->drivers[$name];
         }
 
-        $name = $name ?: $this->config->get('encryption.default', 'aes');
-
+        $name = $name ?: $this->config->get('encryption.default', 'rsa');
         $config = $this->config->get("encryption.driver.{$name}");
         if (empty($config) or empty($config['class'])) {
             throw new InvalidArgumentException(sprintf('The encryption driver config %s is invalid.', $name));
         }
 
-        $driverClass = $config['class'] ?? AesDriver::class;
+        $driverClass = $config['class'] ?? RsaDriver::class;
 
         $driver = make($driverClass, ['options' => $config['options'] ?? []]);
 

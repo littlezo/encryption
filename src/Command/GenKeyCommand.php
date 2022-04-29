@@ -43,25 +43,87 @@ class GenKeyCommand extends HyperfCommand
      */
     public function handle()
     {
-        $driverName = $this->choice('Select driver', array_keys($this->config->get('encryption.driver')));
+        // var_dump($this->config->get('encryption.driver'));
 
-        $keys = $this->generateRandomKey($driverName);
+        // $driverName = $this->choice('Select driver', array_keys($this->config->get('encryption.driver')), 'rsa');
+        $keys = $this->generateRandomKey('rsa');
         if ($keys) {
             foreach ($keys as $key => $value) {
-                $this->line('<comment>' . $key . ": " . $value . '</comment>');
+                $envPath = BASE_PATH . '/.env';
+
+                if (!file_exists($envPath)) {
+                    $this->line('.env file not is exists!', 'error');
+                }
+
+                if ($this->contains(file_get_contents($envPath), $this->upper('RSA_' . $key)) === false) {
+                    file_put_contents($envPath, "\n{$this->upper('RSA_' .$key)}={$value}\n", FILE_APPEND);
+                } else {
+                    file_put_contents($envPath, preg_replace(
+                        "~{$this->upper('RSA_' .$key)}\s*=\s*[^\n]*~",
+                        "{$this->upper('RSA_' .$key)}=\"{$value}\"",
+                        file_get_contents($envPath)
+                    ));
+                }
+                $this->line('<comment>' . $key . ": " . $this->get_private_key($value) . '</comment>');
             }
+        } else {
+            $this->line('<comment>' . $keys . '</comment>');
         }
-        $this->line('<comment>' . $keys . '</comment>');
     }
 
     /**
      * 为应用程序生成一个随机密钥。
-     *
+     *e
      * @return array||string
      */
     protected function generateRandomKey(string $driverName)
     {
         $config = $this->config->get("encryption.driver.{$driverName}");
-        return call([$config['class'], 'generateKey'], [['options' => $config['options']]]);
+        // var_dump($config);
+        return call([$config['class'], 'generateKey'], ['options' => $config['options']]);
+    }
+    protected  function contains(string $haystack, $needles): bool
+    {
+        foreach ((array) $needles as $needle) {
+            if ('' != $needle && mb_strpos($haystack, $needle) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public  function upper(string $value): string
+    {
+        return mb_strtoupper($value, 'UTF-8');
+    }
+    /**获取私有key字符串 重新格式化 为保证任何key都可以识别*/
+    public static function get_private_key($private_key)
+    {
+        $search = array(
+            "-----BEGIN PRIVATE KEY-----", //自定义头部
+            "-----END PRIVATE KEY-----", //自定义尾部
+            "\n",
+            "\r",
+            "\r\n"
+        );
+        return $private_key;
+        return $private_key = str_replace($search, "", $private_key);
+        // return $search[0] . PHP_EOL . wordwrap($private_key, 64, "\n", true) . PHP_EOL . $search[1];
+    }
+
+    /**获取公共key字符串 重新格式化 为保证任何key都可以识别*/
+    public static function get_public_key($public_key)
+    {
+        $search = array(
+            "-----BEGIN PUBLIC KEY-----", //自定义头部
+            "-----END PUBLIC KEY-----", //自定义尾部
+            "\n",
+            "\r",
+            "\r\n"
+        );
+        return $public_key;
+        return $public_key = str_replace($search, "", $public_key);
+        // return $search[0] . PHP_EOL . wordwrap($public_key, 64, "\n", true) . PHP_EOL . $search[1];
     }
 }

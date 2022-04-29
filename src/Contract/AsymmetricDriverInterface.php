@@ -16,9 +16,30 @@ namespace Littler\Encryption\Contract;
 
 interface AsymmetricDriverInterface extends DriverInterface
 {
+    /**
+     * 生成新秘钥.
+     */
     public static function generateKey(array $options = []): array;
-
+    /**
+     * 设置一个公钥
+     * @param string $public_key
+     * @throws \Littler\Encryption\Exception\SupportException
+     */
+    public function setPublicKey($public_key): self;
+    /**
+     * 设置一个私人钥
+     * @param string $private_key
+     * @throws \Littler\Encryption\Exception\SupportException
+     */
+    public function setPrivateKey($private_key): self;
+    /**
+     * 获取一个公钥
+     * @return string
+     */
     public function getPublicKey(): string;
-
+    /**
+     * 获取一个私钥
+     * @return string
+     */
     public function getPrivateKey(): string;
 }

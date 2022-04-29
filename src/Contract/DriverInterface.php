@@ -23,6 +23,7 @@ interface DriverInterface
      * @param int $type 类型 1 公钥 2 私钥
      *
      * @throws \Littler\Encryption\Exception\EncryptException
+     * @return string
      */
     public function encrypt($value, int $type = 1, bool $serialize = true): string;
 

@@ -16,11 +16,14 @@ declare(strict_types=1);
 return [
     'default' => 'rsa',
     'driver' => [
-        'aes' => [
+        'rsa' => [
             'class' => \Littler\Encryption\Driver\RsaDriver::class,
             'options' => [
                 'public_key' => env('RSA_PUBLIC_KEY', ''),
                 'private_key' => env('RSA_PRIVATE_KEY', ''),
+                'digest_alg' => env('DIGEST_ALG', 'sha512'),
+                'private_key_bits' => env('PRIVATE_KEY_BITS', '4096'),
+                'private_key_type' => env('PRIVATE_KEY_TYPE', 'OPENSSL_KEYTYPE_RSA'),
             ],
         ],
     ],

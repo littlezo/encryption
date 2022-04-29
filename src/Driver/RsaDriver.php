@@ -24,22 +24,22 @@ class RsaDriver implements AsymmetricDriverInterface
     /**
      * 私钥
      */
-    protected string $private_key;
+    protected ?string $private_key = null;
 
     /**
      * 公钥
      */
-    protected string $public_key;
+    protected ?string $public_key = null;
 
     /**
      * 私钥长度
      */
-    protected int $private_len;
+    protected ?int $private_len = 0;
 
     /**
      * 公钥长度
      */
-    protected int $public_len;
+    protected ?int $public_len = 0;
 
     /**
      * 创建一个新的加密程序实例.
@@ -50,40 +50,23 @@ class RsaDriver implements AsymmetricDriverInterface
     {
         $public_key = (string) ($options['public_key'] ?? '');
         $private_key = (string) ($options['private_key'] ?? '');
-
-        if ($this->supported($public_key, $private_key)) {
-            $this->cipher = $public_key;
-            $this->key = $private_key;
-        } else {
+        $this->setPublicKey($public_key);
+        $this->setPrivateKey($private_key);
+        if (!$this->private_len || !$this->public_len) {
             throw new SupportException('给定非合法的 OpenSSLAsymmetricKey 公密或私密', 69000);
         }
     }
 
-    /**
-     * 验证密钥是否有效.
-     */
-    public function supported(string $public_key, string $private_key): bool
-    {
-        $public_check = openssl_pkey_get_public($public_key);
-        $private_check = openssl_pkey_get_private($private_key);
-        if ($private_check && $public_check) {
-            $pkey_detail = openssl_pkey_get_details($private_check);
-            $this->private_len = $pkey_detail['bits'];
-            $pkey_detail = openssl_pkey_get_details($public_check);
-            $this->public_len = $pkey_detail['bits'];
-        }
-        return $private_check && $public_check;
-    }
+
 
     /**
      * 生成秘钥.
      */
     public static function generateKey(array $options = []): array
     {
-        $cipher = $options['digest_alg'] ?? 'sha512';
-        $cipher = $options['private_key_bits'] ?? '4096';
-        $cipher = $options['private_key_type'] ?? 'OPENSSL_KEYTYPE_RSA';
-
+        $cipher['digest_alg'] = $options['digest_alg'] ?? 'sha512';
+        $cipher['private_key_bits']  = $options['private_key_bits'] ?? '4096';
+        $cipher['private_key_type'] = $options['private_key_type'] ?? 'OPENSSL_KEYTYPE_RSA';
         $resources = openssl_pkey_new($cipher);
         openssl_pkey_export($resources, $private_key, null, $cipher);
         $public_key = openssl_pkey_get_details($resources);
@@ -97,11 +80,51 @@ class RsaDriver implements AsymmetricDriverInterface
         ];
     }
 
+    /**
+     * 设置一个公钥
+     * @param string $public_key
+     * @throws \Littler\Encryption\Exception\SupportException
+     */
+    public function setPublicKey($public_key): self
+    {
+        $public_check = openssl_pkey_get_public($public_key);
+        if (!$public_check) {
+            throw new SupportException('OPENSSL_KEY_CREATE_ERROR', 69201);
+        }
+        $pkey_detail = openssl_pkey_get_details($public_check);
+        $this->public_len = $pkey_detail['bits'];
+        $this->public_key = $public_key;
+        return $this;
+    }
+
+    /**
+     * 设置一个私人钥
+     * @param string $private_key
+     * @throws \Littler\Encryption\Exception\SupportException
+     */
+    public function setPrivateKey($private_key): self
+    {
+        $private_check = openssl_pkey_get_private($private_key);
+        if (!$private_check) {
+            throw new SupportException('OPENSSL_PRIVATE_KEY_ERROR', 69301);
+        }
+        $pkey_detail = openssl_pkey_get_details($private_check);
+        $this->private_len = $pkey_detail['bits'];
+        $this->private_key = $private_key;
+        return  $this;
+    }
+    /**
+     * 获取一个公钥
+     * @return string
+     */
     public function getPublicKey(): string
     {
         return $this->public_key;
     }
-
+    /**
+     * 获取一个私钥
+     * @return string
+     */
     public function getPrivateKey(): string
     {
         return $this->private_key;
@@ -117,6 +140,7 @@ class RsaDriver implements AsymmetricDriverInterface
      */
     public function encrypt($value, int $type = 1, bool $serialize = true): string
     {
+        $value = gettype($value) == 'string' ? $value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
         $encrypted = '';
         if ($type == 1) {
             $chunk_len = $this->public_len / 8 - 11;

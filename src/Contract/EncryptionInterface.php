@@ -19,7 +19,7 @@ interface EncryptionInterface extends DriverInterface
     /**
      * 获取驱动程序实例
      *
-     * @return \Littler\Encryption\Contract\DriverInterface
+     * @return DriverInterface|AsymmetricDriverInterface|SymmetricDriverInterface
      */
-    public function getDriver(?string $name = null): DriverInterface;
+    public function getDriver(?string $name = null): DriverInterface|AsymmetricDriverInterface|SymmetricDriverInterface;
 }

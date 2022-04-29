@@ -11,6 +11,7 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
+
 namespace Littler\Encryption;
 
 use Hyperf\Utils\ApplicationContext;
@@ -24,13 +25,13 @@ abstract class Crypt
         return ApplicationContext::getContainer()->get(EncryptionInterface::class)->getDriver($name);
     }
 
-    public static function encrypt($value, bool $serialize = true, ?string $driverName = null): string
+    public static function encrypt($value, int $type, bool  $serialize = true, ?string $driverName = null): string
     {
-        return static::getDriver($driverName)->encrypt($value, $serialize);
+        return static::getDriver($driverName)->encrypt($value,  $type, $serialize);
     }
 
-    public static function decrypt(string $payload, bool $unserialize = true, ?string $driverName = null)
+    public static function decrypt(string $payload, int $type, bool $unserialize = true, ?string $driverName = null): mixed
     {
-        return static::getDriver($driverName)->decrypt($payload, $unserialize);
+        return static::getDriver($driverName)->decrypt($payload,  $type, $unserialize);
     }
 }
