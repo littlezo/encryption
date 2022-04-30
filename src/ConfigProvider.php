@@ -11,7 +11,6 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
-
 namespace Littler\Encryption;
 
 use Littler\Encryption\Command\GenKeyCommand;

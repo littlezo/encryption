@@ -11,26 +11,25 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
-
 namespace Littler\Encryption;
 
-use InvalidArgumentException;
 use Hyperf\Contract\ConfigInterface;
-use Littler\Encryption\Driver\RsaDriver;
+use InvalidArgumentException;
 use Littler\Encryption\Contract\DriverInterface;
 use Littler\Encryption\Contract\EncryptionInterface;
+use Littler\Encryption\Driver\RsaDriver;
 
 class EncryptionManager implements EncryptionInterface
 {
     /**
-     * 配置实例
+     * 配置实例.
      *
      * @var \Hyperf\Contract\ConfigInterface
      */
     protected $config;
 
     /**
-     * 创建的“驱动程序”数组
+     * 创建的“驱动程序”数组.
      *
      * @var \Littler\Encryption\Contract\DriverInterface[]
      */
@@ -43,16 +42,16 @@ class EncryptionManager implements EncryptionInterface
 
     public function encrypt($value, int $type = 1, bool $serialize = true): string
     {
-        return $this->getDriver()->encrypt($value,  $type, $serialize);
+        return $this->getDriver()->encrypt($value, $type, $serialize);
     }
 
     public function decrypt(string $payload, int $type = 2, bool $unserialize = true): mixed
     {
-        return $this->getDriver()->decrypt($payload,  $type, $unserialize);
+        return $this->getDriver()->decrypt($payload, $type, $unserialize);
     }
 
     /**
-     * 获取驱动程序实例
+     * 获取驱动程序实例.
      *
      * @return \Littler\Encryption\Contract\AsymmetricDriverInterface|\Littler\Encryption\Contract\SymmetricDriverInterface
      */

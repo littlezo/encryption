@@ -11,7 +11,6 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
-
 namespace Littler\Encryption\Contract;
 
 interface DriverInterface
@@ -23,7 +22,6 @@ interface DriverInterface
      * @param int $type 类型 1 公钥 2 私钥
      *
      * @throws \Littler\Encryption\Exception\EncryptException
-     * @return string
      */
     public function encrypt($value, int $type = 1, bool $serialize = true): string;
 
@@ -32,7 +30,6 @@ interface DriverInterface
      * @param int $type 类型 1 公钥 2 私钥
      *
      * @throws \Littler\Encryption\Exception\DecryptException
-     * @return mixed
      */
     public function decrypt(string $payload, int $type = 2, bool $unserialize = true): mixed;
 }

@@ -11,7 +11,6 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
-
 namespace Littler\Encryption\Driver;
 
 use Littler\Encryption\Contract\AsymmetricDriverInterface;
@@ -22,22 +21,22 @@ use Littler\Encryption\Exception\SupportException;
 class RsaDriver implements AsymmetricDriverInterface
 {
     /**
-     * 私钥
+     * 私钥.
      */
     protected ?string $private_key = null;
 
     /**
-     * 公钥
+     * 公钥.
      */
     protected ?string $public_key = null;
 
     /**
-     * 私钥长度
+     * 私钥长度.
      */
     protected ?int $private_len = 0;
 
     /**
-     * 公钥长度
+     * 公钥长度.
      */
     protected ?int $public_len = 0;
 
@@ -52,12 +51,10 @@ class RsaDriver implements AsymmetricDriverInterface
         $private_key = (string) ($options['private_key'] ?? '');
         $this->setPublicKey($public_key);
         $this->setPrivateKey($private_key);
-        if (!$this->private_len || !$this->public_len) {
+        if (! $this->private_len || ! $this->public_len) {
             throw new SupportException('给定非合法的 OpenSSLAsymmetricKey 公密或私密', 69000);
         }
     }
-
-
 
     /**
      * 生成秘钥.
@@ -65,7 +62,7 @@ class RsaDriver implements AsymmetricDriverInterface
     public static function generateKey(array $options = []): array
     {
         $cipher['digest_alg'] = $options['digest_alg'] ?? 'sha512';
-        $cipher['private_key_bits']  = $options['private_key_bits'] ?? '4096';
+        $cipher['private_key_bits'] = $options['private_key_bits'] ?? '4096';
         $cipher['private_key_type'] = $options['private_key_type'] ?? 'OPENSSL_KEYTYPE_RSA';
         $resources = openssl_pkey_new($cipher);
         openssl_pkey_export($resources, $private_key, null, $cipher);
@@ -81,14 +78,14 @@ class RsaDriver implements AsymmetricDriverInterface
     }
 
     /**
-     * 设置一个公钥
+     * 设置一个公钥.
      * @param string $public_key
      * @throws \Littler\Encryption\Exception\SupportException
      */
     public function setPublicKey($public_key): self
     {
         $public_check = openssl_pkey_get_public($public_key);
-        if (!$public_check) {
+        if (! $public_check) {
             throw new SupportException('OPENSSL_KEY_CREATE_ERROR', 69201);
         }
         $pkey_detail = openssl_pkey_get_details($public_check);
@@ -98,32 +95,32 @@ class RsaDriver implements AsymmetricDriverInterface
     }
 
     /**
-     * 设置一个私人钥
+     * 设置一个私人钥.
      * @param string $private_key
      * @throws \Littler\Encryption\Exception\SupportException
      */
     public function setPrivateKey($private_key): self
     {
         $private_check = openssl_pkey_get_private($private_key);
-        if (!$private_check) {
+        if (! $private_check) {
             throw new SupportException('OPENSSL_PRIVATE_KEY_ERROR', 69301);
         }
         $pkey_detail = openssl_pkey_get_details($private_check);
         $this->private_len = $pkey_detail['bits'];
         $this->private_key = $private_key;
-        return  $this;
+        return $this;
     }
+
     /**
-     * 获取一个公钥
-     * @return string
+     * 获取一个公钥.
      */
     public function getPublicKey(): string
     {
         return $this->public_key;
     }
+
     /**
-     * 获取一个私钥
-     * @return string
+     * 获取一个私钥.
      */
     public function getPrivateKey(): string
     {
@@ -140,7 +137,9 @@ class RsaDriver implements AsymmetricDriverInterface
      */
     public function encrypt($value, int $type = 1, bool $serialize = true): string
     {
-        $value = gettype($value) == 'string' ? $value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+        if (gettype($value) == 'array' || gettype($value) == 'object') {
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES);
+        }
         $encrypted = '';
         if ($type == 1) {
             $chunk_len = $this->public_len / 8 - 11;
@@ -168,7 +167,6 @@ class RsaDriver implements AsymmetricDriverInterface
      * @param int $type 类型 1 公钥 2 私钥
      *
      * @throws \Littler\Encryption\Exception\DecryptException
-     * @return mixed
      */
     public function decrypt(string $payload, int $type = 2, bool $unserialize = true): mixed
     {
@@ -188,7 +186,7 @@ class RsaDriver implements AsymmetricDriverInterface
             } else {
                 $encryptionOk = openssl_private_decrypt($chunk, $chunkEncrypted, $this->private_key, OPENSSL_PKCS1_PADDING);
             }
-            if (!$encryptionOk) {
+            if (! $encryptionOk) {
                 throw new DecryptException('DECRYPT_FAIL', 69301);
             }
             $decrypted .= $chunkEncrypted;

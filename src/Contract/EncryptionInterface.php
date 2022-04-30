@@ -11,15 +11,12 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
-
 namespace Littler\Encryption\Contract;
 
 interface EncryptionInterface extends DriverInterface
 {
     /**
-     * 获取驱动程序实例
-     *
-     * @return DriverInterface|AsymmetricDriverInterface|SymmetricDriverInterface
+     * 获取驱动程序实例.
      */
     public function getDriver(?string $name = null): DriverInterface|AsymmetricDriverInterface|SymmetricDriverInterface;
 }
