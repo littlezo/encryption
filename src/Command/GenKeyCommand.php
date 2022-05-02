@@ -3,7 +3,7 @@
 declare(strict_types=1);
 /**
  * #logic 做事不讲究逻辑，再努力也只是重复犯错
- * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。.
+ * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。
  * @version 1.0.0
  * @author @小小只^v^ <littlezov@qq.com>  littlezov@qq.com
  * @link     https://github.com/littlezo
@@ -53,7 +53,7 @@ class GenKeyCommand extends HyperfCommand
                 }
 
                 if ($this->contains(file_get_contents($envPath), $this->upper('RSA_' . $key)) === false) {
-                    file_put_contents($envPath, "\n{$this->upper('RSA_' . $key)}={$value}\n", FILE_APPEND);
+                    file_put_contents($envPath, "\n{$this->upper('RSA_' . $key)}=" . $value . "\n", FILE_APPEND);
                 } else {
                     file_put_contents($envPath, preg_replace(
                         "~{$this->upper('RSA_' . $key)}\\s*=\\s*[^\n]*~",
@@ -73,7 +73,7 @@ class GenKeyCommand extends HyperfCommand
         return mb_strtoupper($value, 'UTF-8');
     }
 
-    /*获取私有key字符串 重新格式化 为保证任何key都可以识别*/
+    // 获取私有key字符串 重新格式化 为保证任何key都可以识别
     public static function get_private_key($private_key)
     {
         $search = [
@@ -83,12 +83,13 @@ class GenKeyCommand extends HyperfCommand
             "\r",
             "\r\n",
         ];
+
         return $private_key;
         return $private_key = str_replace($search, '', $private_key);
         // return $search[0] . PHP_EOL . wordwrap($private_key, 64, "\n", true) . PHP_EOL . $search[1];
     }
 
-    /*获取公共key字符串 重新格式化 为保证任何key都可以识别*/
+    // 获取公共key字符串 重新格式化 为保证任何key都可以识别
     public static function get_public_key($public_key)
     {
         $search = [
@@ -98,6 +99,7 @@ class GenKeyCommand extends HyperfCommand
             "\r",
             "\r\n",
         ];
+
         return $public_key;
         return $public_key = str_replace($search, '', $public_key);
         // return $search[0] . PHP_EOL . wordwrap($public_key, 64, "\n", true) . PHP_EOL . $search[1];
@@ -106,11 +108,13 @@ class GenKeyCommand extends HyperfCommand
     /**
      * 为应用程序生成一个随机密钥。
      *e.
+     *
      * @return array||string
      */
     protected function generateRandomKey(string $driverName)
     {
         $config = $this->config->get("encryption.driver.{$driverName}");
+
         return call([$config['class'], 'generateKey'], ['options' => $config['options']]);
     }
 

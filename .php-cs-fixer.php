@@ -6,7 +6,7 @@ declare(strict_types=1);
  */
 $header = <<<'EOF'
 #logic 做事不讲究逻辑，再努力也只是重复犯错
-## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。.
+## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。
 @version 1.0.0
 @author @小小只^v^ <littlezov@qq.com>  littlezov@qq.com
 @link     https://github.com/littlezo
@@ -20,6 +20,7 @@ return (new PhpCsFixer\Config())
     ->setRules([
         '@PSR12' => true,
         '@Symfony' => true,
+        '@DoctrineAnnotation' => true,
         '@PhpCsFixer' => true,
         'header_comment' => [
             'comment_type' => 'PHPDoc',
@@ -28,13 +29,13 @@ return (new PhpCsFixer\Config())
             'location' => 'after_declare_strict',
         ],
         'array_syntax' => [
-            'syntax' => 'short',
+            'syntax' => 'short'
         ],
         'list_syntax' => [
-            'syntax' => 'short',
+            'syntax' => 'short'
         ],
         'concat_space' => [
-            'spacing' => 'one',
+            'spacing' => 'one'
         ],
         'blank_line_before_statement' => [
             'statements' => [
@@ -43,7 +44,7 @@ return (new PhpCsFixer\Config())
         ],
         'general_phpdoc_annotation_remove' => [
             'annotations' => [
-                'author',
+                'author'
             ],
         ],
         'ordered_imports' => [
@@ -87,7 +88,11 @@ return (new PhpCsFixer\Config())
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
+            ->exclude('bin')
+            ->exclude('public')
+            ->exclude('runtime')
             ->exclude('vendor')
+            ->exclude('storage')
             ->in(__DIR__)
     )
     ->setUsingCache(false);

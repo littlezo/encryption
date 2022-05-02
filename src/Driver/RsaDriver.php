@@ -3,7 +3,7 @@
 declare(strict_types=1);
 /**
  * #logic 做事不讲究逻辑，再努力也只是重复犯错
- * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。.
+ * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。
  * @version 1.0.0
  * @author @小小只^v^ <littlezov@qq.com>  littlezov@qq.com
  * @link     https://github.com/littlezo
@@ -71,6 +71,7 @@ class RsaDriver implements AsymmetricDriverInterface
         if (empty($private_key) || empty($public_key)) {
             throw new SupportException('OPENSSL_KEY_CREATE_ERROR', 69101);
         }
+
         return [
             'public_key' => $public_key['key'],
             'private_key' => $private_key,
@@ -79,7 +80,9 @@ class RsaDriver implements AsymmetricDriverInterface
 
     /**
      * 设置一个公钥.
+     *
      * @param string $public_key
+     *
      * @throws \Littler\Encryption\Exception\SupportException
      */
     public function setPublicKey($public_key): self
@@ -91,12 +94,15 @@ class RsaDriver implements AsymmetricDriverInterface
         $pkey_detail = openssl_pkey_get_details($public_check);
         $this->public_len = $pkey_detail['bits'];
         $this->public_key = $public_key;
+
         return $this;
     }
 
     /**
      * 设置一个私人钥.
+     *
      * @param string $private_key
+     *
      * @throws \Littler\Encryption\Exception\SupportException
      */
     public function setPrivateKey($private_key): self
@@ -108,6 +114,7 @@ class RsaDriver implements AsymmetricDriverInterface
         $pkey_detail = openssl_pkey_get_details($private_check);
         $this->private_len = $pkey_detail['bits'];
         $this->private_key = $private_key;
+
         return $this;
     }
 
@@ -138,7 +145,7 @@ class RsaDriver implements AsymmetricDriverInterface
     public function encrypt($value, int $type = 1, bool $serialize = true): string
     {
         if (gettype($value) == 'array' || gettype($value) == 'object') {
-            $value = json_encode($value, JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES);
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES + JSON_FORCE_OBJECT);
         }
         $encrypted = '';
         if ($type == 1) {
@@ -159,11 +166,13 @@ class RsaDriver implements AsymmetricDriverInterface
             }
             $encrypted .= $chunkEncrypted;
         }
+
         return self::safe_base64_encode($encrypted);
     }
 
     /**
      * 解密.
+     *
      * @param int $type 类型 1 公钥 2 私钥
      *
      * @throws \Littler\Encryption\Exception\DecryptException
@@ -191,25 +200,31 @@ class RsaDriver implements AsymmetricDriverInterface
             }
             $decrypted .= $chunkEncrypted;
         }
+
         return $decrypted;
     }
 
     /**
      * base64解码
+     *
      * @param array|string $string
      */
     private static function safe_base64_decode($string)
     {
+        return base64_decode($string);
         $base64 = str_replace(['-', '_'], ['+', '/'], $string);
+
         return base64_decode($base64);
     }
 
     /**
      * base64编码
+     *
      * @param array|string $data
      */
     private static function safe_base64_encode($data)
     {
+        return base64_encode($data);
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
     }
 }

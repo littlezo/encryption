@@ -11,7 +11,10 @@
     "autoload": {
         "psr-4": {
             "Littler\\Encryption\\": "src/"
-        }
+        },
+        "files": [
+            "src/Functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
