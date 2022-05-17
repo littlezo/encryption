@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * #logic 做事不讲究逻辑，再努力也只是重复犯错
  * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。
@@ -11,6 +12,7 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
+
 namespace Littler\Encryption\Contract;
 
 interface DriverInterface
@@ -19,7 +21,7 @@ interface DriverInterface
      * 加密.
      *
      * @param mixed $value
-     * @param int $type 类型 1 公钥 2 私钥
+     * @param int   $type  类型 1 公钥 2 私钥
      *
      * @throws \Littler\Encryption\Exception\EncryptException
      */

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * #logic 做事不讲究逻辑，再努力也只是重复犯错
  * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。
@@ -11,12 +12,14 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
+
 namespace Littler\Encryption\Driver;
 
 use Littler\Encryption\Contract\AsymmetricDriverInterface;
 use Littler\Encryption\Exception\DecryptException;
 use Littler\Encryption\Exception\EncryptException;
 use Littler\Encryption\Exception\SupportException;
+use RuntimeException;
 
 class RsaDriver implements AsymmetricDriverInterface
 {
@@ -43,39 +46,17 @@ class RsaDriver implements AsymmetricDriverInterface
     /**
      * 创建一个新的加密程序实例.
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function __construct(array $options = [])
     {
-        $public_key = (string) ($options['public_key'] ?? '');
+        $public_key  = (string) ($options['public_key'] ?? '');
         $private_key = (string) ($options['private_key'] ?? '');
         $this->setPublicKey($public_key);
         $this->setPrivateKey($private_key);
         if (! $this->private_len || ! $this->public_len) {
             throw new SupportException('给定非合法的 OpenSSLAsymmetricKey 公密或私密', 69000);
         }
-    }
-
-    /**
-     * 生成秘钥.
-     */
-    public static function generateKey(array $options = []): array
-    {
-        $cipher['digest_alg'] = $options['digest_alg'] ?? 'sha512';
-        $cipher['private_key_bits'] = $options['private_key_bits'] ?? '4096';
-        $cipher['private_key_type'] = $options['private_key_type'] ?? 'OPENSSL_KEYTYPE_RSA';
-        $resources = openssl_pkey_new($cipher);
-        openssl_pkey_export($resources, $private_key, null, $cipher);
-        $public_key = openssl_pkey_get_details($resources);
-
-        if (empty($private_key) || empty($public_key)) {
-            throw new SupportException('OPENSSL_KEY_CREATE_ERROR', 69101);
-        }
-
-        return [
-            'public_key' => $public_key['key'],
-            'private_key' => $private_key,
-        ];
     }
 
     /**
@@ -91,7 +72,7 @@ class RsaDriver implements AsymmetricDriverInterface
         if (! $public_check) {
             throw new SupportException('OPENSSL_KEY_CREATE_ERROR', 69201);
         }
-        $pkey_detail = openssl_pkey_get_details($public_check);
+        $pkey_detail      = openssl_pkey_get_details($public_check);
         $this->public_len = $pkey_detail['bits'];
         $this->public_key = $public_key;
 
@@ -111,7 +92,7 @@ class RsaDriver implements AsymmetricDriverInterface
         if (! $private_check) {
             throw new SupportException('OPENSSL_PRIVATE_KEY_ERROR', 69301);
         }
-        $pkey_detail = openssl_pkey_get_details($private_check);
+        $pkey_detail       = openssl_pkey_get_details($private_check);
         $this->private_len = $pkey_detail['bits'];
         $this->private_key = $private_key;
 
@@ -138,7 +119,7 @@ class RsaDriver implements AsymmetricDriverInterface
      * 加密.
      *
      * @param mixed $value
-     * @param int $type 类型 1 公钥 2 私钥
+     * @param int   $type  类型 1 公钥 2 私钥
      *
      * @throws \Littler\Encryption\Exception\EncryptException
      */
@@ -153,7 +134,7 @@ class RsaDriver implements AsymmetricDriverInterface
         } else {
             $chunk_len = $this->private_len / 8 - 11;
         }
-        $chunk_data = str_split($value, $chunk_len);
+        $chunk_data = mb_str_split($value, $chunk_len);
         foreach ($chunk_data as $chunk) {
             $chunkEncrypted = '';
             if ($type == 1) {
@@ -179,7 +160,7 @@ class RsaDriver implements AsymmetricDriverInterface
      */
     public function decrypt(string $payload, int $type = 2, bool $unserialize = true): mixed
     {
-        $decrypted = '';
+        $decrypted      = '';
         $base64_decoded = self::safe_base64_decode($payload);
         // 分段解密
         if ($type == 1) {
@@ -187,7 +168,7 @@ class RsaDriver implements AsymmetricDriverInterface
         } else {
             $chunk_len = $this->private_len / 8;
         }
-        $chunk_data = str_split($base64_decoded, $chunk_len);
+        $chunk_data = mb_str_split($base64_decoded, $chunk_len);
         foreach ($chunk_data as $chunk) {
             $chunkEncrypted = '';
             if ($type == 1) {
@@ -202,6 +183,28 @@ class RsaDriver implements AsymmetricDriverInterface
         }
 
         return $decrypted;
+    }
+
+    /**
+     * 生成秘钥.
+     */
+    public static function generateKey(array $options = []): array
+    {
+        $cipher['digest_alg']       = $options['digest_alg'] ?? 'sha512';
+        $cipher['private_key_bits'] = $options['private_key_bits'] ?? '4096';
+        $cipher['private_key_type'] = $options['private_key_type'] ?? 'OPENSSL_KEYTYPE_RSA';
+        $resources                  = openssl_pkey_new($cipher);
+        openssl_pkey_export($resources, $private_key, null, $cipher);
+        $public_key = openssl_pkey_get_details($resources);
+
+        if (empty($private_key) || empty($public_key)) {
+            throw new SupportException('OPENSSL_KEY_CREATE_ERROR', 69101);
+        }
+
+        return [
+            'public_key' => $public_key['key'],
+            'private_key' => $private_key,
+        ];
     }
 
     /**
@@ -225,6 +228,7 @@ class RsaDriver implements AsymmetricDriverInterface
     private static function safe_base64_encode($data)
     {
         return base64_encode($data);
+
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
     }
 }

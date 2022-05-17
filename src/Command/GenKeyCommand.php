@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * #logic 做事不讲究逻辑，再努力也只是重复犯错
  * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。
@@ -11,6 +12,7 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
+
 namespace Littler\Encryption\Command;
 
 use Hyperf\Command\Command as HyperfCommand;
@@ -31,7 +33,7 @@ class GenKeyCommand extends HyperfCommand
         parent::__construct('gen:key');
     }
 
-    public function configure()
+    public function configure(): void
     {
         parent::configure();
         $this->setDescription('Create a secret key or key-pair for littler/encryption');
@@ -40,7 +42,7 @@ class GenKeyCommand extends HyperfCommand
     /**
      * 处理当前命令.
      */
-    public function handle()
+    public function handle(): void
     {
         // $driverName = $this->choice('Select driver', array_keys($this->config->get('encryption.driver')), 'rsa');
         $keys = $this->generateRandomKey('rsa');
@@ -85,6 +87,7 @@ class GenKeyCommand extends HyperfCommand
         ];
 
         return $private_key;
+
         return $private_key = str_replace($search, '', $private_key);
         // return $search[0] . PHP_EOL . wordwrap($private_key, 64, "\n", true) . PHP_EOL . $search[1];
     }
@@ -101,6 +104,7 @@ class GenKeyCommand extends HyperfCommand
         ];
 
         return $public_key;
+
         return $public_key = str_replace($search, '', $public_key);
         // return $search[0] . PHP_EOL . wordwrap($public_key, 64, "\n", true) . PHP_EOL . $search[1];
     }

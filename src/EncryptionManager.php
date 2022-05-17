@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * #logic 做事不讲究逻辑，再努力也只是重复犯错
  * ## 何为相思：不删不聊不打扰，可否具体点：曾爱过。何为遗憾：你来我往皆过客，可否具体点：再无你。
@@ -11,6 +12,7 @@ declare(strict_types=1);
  * @license  https://github.com/littlezo/MozillaPublicLicense/blob/main/LICENSE
  *
  */
+
 namespace Littler\Encryption;
 
 use Hyperf\Contract\ConfigInterface;
@@ -61,9 +63,9 @@ class EncryptionManager implements EncryptionInterface
             return $this->drivers[$name];
         }
 
-        $name = $name ?: $this->config->get('encryption.default', 'rsa');
+        $name   = $name ?: $this->config->get('encryption.default', 'rsa');
         $config = $this->config->get("encryption.driver.{$name}");
-        if (empty($config) or empty($config['class'])) {
+        if (empty($config) || empty($config['class'])) {
             throw new InvalidArgumentException(sprintf('The encryption driver config %s is invalid.', $name));
         }
 
