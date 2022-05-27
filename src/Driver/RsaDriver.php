@@ -134,7 +134,7 @@ class RsaDriver implements AsymmetricDriverInterface
         } else {
             $chunk_len = $this->private_len / 8 - 11;
         }
-        $chunk_data = mb_str_split($value, $chunk_len);
+        $chunk_data = str_split((string) $value, $chunk_len);
         foreach ($chunk_data as $chunk) {
             $chunkEncrypted = '';
             if ($type == 1) {
@@ -168,7 +168,9 @@ class RsaDriver implements AsymmetricDriverInterface
         } else {
             $chunk_len = $this->private_len / 8;
         }
-        $chunk_data = mb_str_split($base64_decoded, $chunk_len);
+        $chunk_data = str_split($base64_decoded, $chunk_len);
+        // var_dump('chunk_len', $chunk_data);
+
         foreach ($chunk_data as $chunk) {
             $chunkEncrypted = '';
             if ($type == 1) {
@@ -176,7 +178,8 @@ class RsaDriver implements AsymmetricDriverInterface
             } else {
                 $encryptionOk = openssl_private_decrypt($chunk, $chunkEncrypted, $this->private_key, OPENSSL_PKCS1_PADDING);
             }
-            if (! $encryptionOk) {
+            // var_dump('encryptionOk:', $encryptionOk);
+            if ($encryptionOk === false) {
                 throw new DecryptException('DECRYPT_FAIL', 69301);
             }
             $decrypted .= $chunkEncrypted;
